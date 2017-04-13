@@ -39,9 +39,10 @@
              remote-uri (.resolve rmt-path lcl-path) ]
          (-> (merge {:method (:request-method req)
                      :url (str remote-uri "?" (:query-string req))
-                     :headers (dissoc (:headers req) "host" "content-length")
+                     :form-params (:form-params req)
                      :body (if-let [len (get-in req [:headers "content-length"])]
                              (slurp-binary (:body req) (Integer/parseInt len)))
+                     :headers (dissoc (:headers req) "host" "content-length")
                      :follow-redirects true
                      :throw-exceptions false
                      :as :stream} http-opts)
