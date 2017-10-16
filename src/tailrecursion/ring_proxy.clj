@@ -26,12 +26,16 @@
 
 (defn wrap-proxy
   "Proxies requests from proxied-path, a local URI, to the remote URI at
-  remote-base-uri, also a string."
+  remote-base-uri. If remote-base-uri is a function it will
+  be called with the request to determine the uri."
   [handler ^String proxied-path remote-base-uri & [http-opts]]
   (wrap-cookies
    (fn [req]
      (if (.startsWith ^String (:uri req) proxied-path)
-       (let [rmt-full   (URI. (str remote-base-uri "/"))
+       (let [rmt-full   (URI. (str (if (string? remote-base-uri)
+                                     remote-base-uri
+                                     (remote-base-uri req))
+                                   "/"))
              rmt-path   (URI. (.getScheme    rmt-full)
                               (.getAuthority rmt-full)
                               (.getPath      rmt-full) nil nil)
